@@ -1018,6 +1018,19 @@
   </button>
 </form>
   
+<section id="vrAdminPanel" class="container" style="display:none;padding:35px 20px;">
+  <h2>Instructor Approval Dashboard</h2>
+  <p>Review instructor profiles and manage their approval status.</p>
+
+  <button id="vrRefreshPending" class="btn btn-primary" type="button">
+    Refresh Pending Profiles
+  </button>
+
+  <div id="vrPendingProfiles" style="margin-top:24px;">
+    <p>Loading pending profiles...</p>
+  </div>
+</section>
+  
   <p id="vrAuthMessage" role="status" aria-live="polite"></p>
 </section>
     
@@ -1378,6 +1391,125 @@ vrProfileForm.addEventListener("submit", async function (event) {
     button.textContent = "Save Instructor Profile";
   }
 });
+    
+const vrAdminPanel = document.getElementById("vrAdminPanel");
+const vrPendingProfiles = document.getElementById("vrPendingProfiles");
+const vrRefreshPending = document.getElementById("vrRefreshPending");
+
+async function vrLoadAdminPanel() {
+  const { data: authData, error: authError } =
+    await vrClient.auth.getUser();
+
+  if (authError || !authData.user) {
+    vrAdminPanel.style.display = "none";
+    return;
+  }
+
+  const { data: isAdmin, error: adminError } =
+    await vrClient.rpc("vr_is_admin");
+
+  if (adminError || !isAdmin) {
+    vrAdminPanel.style.display = "none";
+    return;
+  }
+
+  vrAdminPanel.style.display = "block";
+  await vrLoadPendingProfiles();
+}
+
+async function vrLoadPendingProfiles() {
+  vrPendingProfiles.textContent = "Loading pending profiles...";
+
+  const { data: profiles, error } = await vrClient
+    .from("instructor_profiles")
+    .select("id, full_name, adventure_role, location, experience_years, skills, bio, status, created_at")
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    vrPendingProfiles.textContent =
+      "Could not load profiles: " + error.message;
+    return;
+  }
+
+  vrPendingProfiles.replaceChildren();
+
+  if (!profiles || profiles.length === 0) {
+    vrPendingProfiles.textContent = "No pending instructor profiles.";
+    return;
+  }
+
+  profiles.forEach(profile => {
+    const card = document.createElement("article");
+    card.style.cssText =
+      "border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin:16px 0;background:white;";
+
+    const heading = document.createElement("h3");
+    heading.textContent = profile.full_name || "Unnamed instructor";
+    card.appendChild(heading);
+
+    const details = document.createElement("p");
+    details.textContent =
+      "Role: " + (profile.adventure_role || "Not provided") +
+      " | Location: " + (profile.location || "Not provided") +
+      " | Experience: " + profile.experience_years + " years";
+    card.appendChild(details);
+
+    const skills = document.createElement("p");
+    skills.textContent = "Skills: " + ((profile.skills || []).join(", ") || "Not provided");
+    card.appendChild(skills);
+
+    const bio = document.createElement("p");
+    bio.textContent = "About: " + (profile.bio || "Not provided");
+    card.appendChild(bio);
+
+    const makeButton = (label, status) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.style.cssText =
+        "padding:10px 16px;margin:6px 8px 0 0;border:0;border-radius:8px;cursor:pointer;background:" +
+        (status === "approved" ? "#15803d" : "#b91c1c") +
+        ";color:white;font-weight:600;";
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+
+        const { error: updateError } = await vrClient
+          .from("instructor_profiles")
+          .update({ status })
+          .eq("id", profile.id);
+
+        if (updateError) {
+          alert("Update failed: " + updateError.message);
+          button.disabled = false;
+          return;
+        }
+
+        await vrLoadPendingProfiles();
+      });
+
+      return button;
+    };
+
+    card.appendChild(makeButton("Approve", "approved"));
+    card.appendChild(makeButton("Reject", "rejected"));
+    vrPendingProfiles.appendChild(card);
+  });
+}
+
+vrRefreshPending.addEventListener("click", vrLoadAdminPanel);
+
+vrClient.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    setTimeout(vrLoadAdminPanel, 0);
+  } else {
+    vrAdminPanel.style.display = "none";
+  }
+});
+
+// Check the current session when the page opens.
+vrLoadAdminPanel();
     
   </script>
 </body>
