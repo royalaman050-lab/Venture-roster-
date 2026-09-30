@@ -1018,18 +1018,46 @@
   </button>
 </form>
   
-<section id="vrAdminPanel" class="container" style="display:none;padding:35px 20px;">
-  <h2>Instructor Approval Dashboard</h2>
-  <p>Review instructor profiles and manage their approval status.</p>
 
-  <button id="vrRefreshPending" class="btn btn-primary" type="button">
-    Refresh Pending Profiles
-  </button>
+<section id="vrAdminPanel" class="vr-admin-panel" style="display:none;">
 
-  <div id="vrPendingProfiles" style="margin-top:24px;">
+  <div class="vr-admin-header">
+    <div>
+      <span class="vr-admin-tag">VENTUREROSTER ADMIN</span>
+      <h2>Instructor Dashboard</h2>
+      <p>Review applications and manage instructor approvals.</p>
+    </div>
+
+    <button id="vrAdminLogout" class="vr-logout-btn" type="button">
+      Logout
+    </button>
+  </div>
+
+  <div class="vr-admin-summary">
+    <div class="vr-admin-stat">
+      <span>Dashboard</span>
+      <strong>Applications</strong>
+      <small>Review pending instructors below</small>
+    </div>
+  </div>
+
+  <div class="vr-admin-list-header">
+    <div>
+      <h3>Pending Applications</h3>
+      <p>Approve suitable profiles or reject applications.</p>
+    </div>
+
+    <button id="vrRefreshPending" class="vr-refresh-btn" type="button">
+      ↻ Refresh
+    </button>
+  </div>
+
+  <div id="vrPendingProfiles" class="vr-pending-list">
     <p>Loading pending profiles...</p>
   </div>
+
 </section>
+  
   
   <p id="vrAuthMessage" role="status" aria-live="polite"></p>
 </section>
