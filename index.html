@@ -702,4 +702,97 @@
               opportunities.</p>
           </div>
           <div class="benefit">
-            <d
+           <div class="benefit-icon">💰</div>
+            <h3>Transparent Daily Rates</h3>
+            <p>Show your expected daily rate within the platform's
+              ₹500–₹5,000 range.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="container stats-grid">
+        <div>
+          <div class="stat-number">Verified</div>
+          <div class="stat-label">Profiles can be reviewed</div>
+        </div>
+        <div>
+          <div class="stat-number">Flexible</div>
+          <div class="stat-label">Short-term & long-term hiring</div>
+        </div>
+        <div>
+          <div class="stat-number">Adventure</div>
+          <div class="stat-label">One focused talent community</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" id="join">
+      <div class="cta" id="companies">
+        <div>
+          <div class="section-label" style="color:#dbeafe"> 
+            READY TO GET STARTED?
+          </div>
+          <h2>Your Next Adventure Team<br>Starts Here.</h2>
+          <p>Join the community connecting outdoor professionals
+            with adventure companies.</p>
+        </div>
+        <div class="cta-buttons">
+          <a class="btn btn-light" href="mailto:hello@ventureroster.com?subject=Company%20Registration">
+            I'm a Company
+          </a>
+          <a class="btn btn-outline" href="mailto:hello@ventureroster.com?subject=Instructor%20Registration">
+            I'm an Instructor
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-row">
+      <a class="brand" href="#">
+        <span class="brand-mark">V</span> VentureRoster
+      </a>
+
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#categories">Explore</a>
+        <a href="mailto:hello@ventureroster.com">Contact</a>
+      </div>
+      <small>© <span id="year"></span> VentureRoster. All rights reserved.</small>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    document.getElementById("searchForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const role = document.getElementById("role").value;
+      const location = document.getElementById("location").value;
+      const params = new URLSearchParams();
+
+      if (role) params.set("role", role);
+      if (location) params.set("location", location);
+
+      alert(
+        "VentureRoster search preview\\n\\n" +
+        "Role: " + (role || "All adventure roles") + "\\n" +
+        "Location: " + (location || "All locations") +
+        "\\n\\nReal instructor search will be connected after we set up the database."
+      );
+    });
+
+    document.querySelectorAll(".category").forEach(function(card) {
+      card.addEventListener("click", function() {
+        document.getElementById("role").value = card.dataset.role;
+      });
+    });
+  </script>
+</body>
+</html>
