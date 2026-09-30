@@ -647,6 +647,237 @@
   }
 }
     
+/* ===== VentureRoster Professional Admin Dashboard ===== */
+
+.vr-admin-panel {
+  max-width: 1120px;
+  margin: 36px auto !important;
+  padding: 30px !important;
+  background: #f4f7fb;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  color: #172033;
+  font-family: inherit;
+  box-sizing: border-box;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.07);
+}
+
+.vr-admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 28px;
+  color: #ffffff;
+  background: linear-gradient(130deg, #101d38, #1d4ed8);
+  border-radius: 17px;
+  margin-bottom: 24px;
+}
+
+.vr-admin-tag {
+  display: inline-block;
+  color: #bfdbfe;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.vr-admin-header h2 {
+  color: #ffffff;
+  font-size: clamp(24px, 4vw, 34px);
+  margin: 0 0 9px;
+  letter-spacing: -0.8px;
+}
+
+.vr-admin-header p {
+  color: #dbeafe;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.vr-logout-btn,
+.vr-refresh-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.vr-logout-btn {
+  background: #ffffff;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+.vr-logout-btn:hover,
+.vr-refresh-btn:hover {
+  transform: translateY(-2px);
+}
+
+.vr-admin-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.vr-admin-stat {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.vr-admin-stat span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vr-admin-stat strong {
+  color: #172033;
+  font-size: 23px;
+}
+
+.vr-admin-stat small {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.vr-admin-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.vr-admin-list-header h3 {
+  margin: 0 0 7px;
+  font-size: 21px;
+  color: #172033;
+}
+
+.vr-admin-list-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.vr-refresh-btn {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.vr-pending-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.vr-pending-list > p {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+  border-radius: 13px;
+  padding: 25px;
+  line-height: 1.6;
+}
+
+.vr-pending-list article {
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 22px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 15px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  overflow-wrap: anywhere;
+}
+
+.vr-pending-list article h3 {
+  margin: 0 0 15px;
+  font-size: 19px;
+  color: #172033;
+}
+
+.vr-pending-list article p {
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0;
+}
+
+.vr-pending-list article button {
+  font-size: 13px;
+  padding: 11px 17px !important;
+  border-radius: 9px !important;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.vr-pending-list article button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.vr-pending-list article button:disabled,
+.vr-logout-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 650px) {
+  .vr-admin-panel {
+    margin: 20px auto !important;
+    padding: 14px !important;
+    border-radius: 16px;
+  }
+
+  .vr-admin-header {
+    padding: 21px 18px;
+    border-radius: 13px;
+    align-items: flex-start;
+  }
+
+  .vr-admin-header > div {
+    min-width: 0;
+  }
+
+  .vr-logout-btn {
+    padding: 10px 15px;
+  }
+
+  .vr-admin-stat {
+    padding: 18px;
+  }
+
+  .vr-admin-list-header {
+    align-items: flex-start;
+  }
+
+  .vr-pending-list {
+    grid-template-columns: 1fr;
+  }
+
+  .vr-pending-list article {
+    padding: 18px !important;
+  }
+}
+    
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
