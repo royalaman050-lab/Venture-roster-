@@ -976,7 +976,48 @@
     </form>
 
   </div>
+    
+<form id="vrProfileForm" style="display:none;">
+  <h3>Complete Your Instructor Profile</h3>
+  <p>Add your details to get listed after admin approval.</p>
 
+  <label for="vrProfileName">Full name</label>
+  <input id="vrProfileName" type="text" required maxlength="100"
+    placeholder="Your full name">
+
+  <label for="vrProfileRole">Adventure role</label>
+  <select id="vrProfileRole" required>
+    <option value="">Select your role</option>
+    <option>Mountaineering Instructor</option>
+    <option>Trekking Guide</option>
+    <option>Rock Climbing Instructor</option>
+    <option>River Rafting Guide</option>
+    <option>Adventure Sports Instructor</option>
+    <option>Camping Instructor</option>
+    <option>Other</option>
+  </select>
+
+  <label for="vrProfileLocation">Location</label>
+  <input id="vrProfileLocation" type="text" required maxlength="150"
+    placeholder="e.g. Manali, Himachal Pradesh">
+
+  <label for="vrProfileExperience">Experience (years)</label>
+  <input id="vrProfileExperience" type="number" required
+    min="0" max="60" value="0">
+
+  <label for="vrProfileSkills">Skills</label>
+  <input id="vrProfileSkills" type="text" maxlength="500"
+    placeholder="First aid, climbing, rescue">
+
+  <label for="vrProfileBio">About you</label>
+  <textarea id="vrProfileBio" rows="4" maxlength="2000"
+    placeholder="Describe your experience and qualifications"></textarea>
+
+  <button class="btn btn-primary" type="submit">
+    Save Instructor Profile
+  </button>
+</form>
+  
   <p id="vrAuthMessage" role="status" aria-live="polite"></p>
 </section>
     
@@ -1228,6 +1269,116 @@ if (vrClient) {
 } else {
   showVrMessage("Connection error. Please refresh the page.");
 }
+    
+const vrProfileForm = document.getElementById("vrProfileForm");
+
+async function vrLoadInstructorProfile(session) {
+  if (!session || !vrProfileForm) return;
+
+  vrProfileForm.style.display = "flex";
+
+  const { data: profile, error } = await vrClient
+    .from("instructor_profiles")
+    .select("*")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (error) {
+    showVrMessage("Could not load profile: " + error.message);
+    return;
+  }
+
+  if (profile) {
+    document.getElementById("vrProfileName").value =
+      profile.full_name || "";
+
+    document.getElementById("vrProfileRole").value =
+      profile.adventure_role || "";
+
+    document.getElementById("vrProfileLocation").value =
+      profile.location || "";
+
+    document.getElementById("vrProfileExperience").value =
+      profile.experience_years ?? 0;
+
+    document.getElementById("vrProfileSkills").value =
+      (profile.skills || []).join(", ");
+
+    document.getElementById("vrProfileBio").value =
+      profile.bio || "";
+
+    showVrMessage(
+      "Profile loaded. Current status: " + profile.status
+    );
+  } else {
+    document.getElementById("vrProfileName").value =
+      session.user.user_metadata?.full_name ||
+      session.user.email || "";
+
+    showVrMessage("Complete your instructor profile below.");
+  }
+}
+
+// Show the profile form only to a logged-in user.
+vrClient.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    setTimeout(() => vrLoadInstructorProfile(session), 0);
+  } else if (vrProfileForm) {
+    vrProfileForm.style.display = "none";
+  }
+});
+
+// Save or update the logged-in instructor's profile.
+vrProfileForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const { data: authData, error: authError } =
+    await vrClient.auth.getUser();
+
+  if (authError || !authData.user) {
+    showVrMessage("Please log in before saving your profile.");
+    return;
+  }
+
+  const user = authData.user;
+
+  const profileData = {
+    id: user.id,
+    full_name: document.getElementById("vrProfileName").value.trim(),
+    adventure_role: document.getElementById("vrProfileRole").value,
+    location: document.getElementById("vrProfileLocation").value.trim(),
+    experience_years: Number(
+      document.getElementById("vrProfileExperience").value
+    ),
+    skills: document.getElementById("vrProfileSkills").value
+      .split(",")
+      .map(skill => skill.trim())
+      .filter(Boolean),
+    bio: document.getElementById("vrProfileBio").value.trim()
+  };
+
+  const button = vrProfileForm.querySelector('button[type="submit"]');
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const { error } = await vrClient
+      .from("instructor_profiles")
+      .upsert(profileData, { onConflict: "id" });
+
+    if (error) throw error;
+
+    showVrMessage("Profile saved successfully!");
+
+    await vrLoadInstructorProfile({ user });
+  } catch (error) {
+    showVrMessage("Could not save profile: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Instructor Profile";
+  }
+});
+    
   </script>
 </body>
 </html>
