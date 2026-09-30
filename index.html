@@ -816,6 +816,55 @@
         </div>
       </div>
     </section>
+    
+<section id="instructor-account" class="container" style="padding:40px 0;">
+  <h2>Join VentureRoster</h2>
+  <p>Create your instructor account or log in.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;">
+
+    <form id="vrSignupForm">
+      <h3>Instructor Sign Up</h3>
+
+      <label for="vrSignupName">Full name</label>
+      <input id="vrSignupName" type="text" required
+        autocomplete="name" placeholder="Your full name">
+
+      <label for="vrSignupEmail">Email</label>
+      <input id="vrSignupEmail" type="email" required
+        autocomplete="email" placeholder="you@example.com">
+
+      <label for="vrSignupPassword">Password</label>
+      <input id="vrSignupPassword" type="password" required
+        minlength="6" autocomplete="new-password"
+        placeholder="At least 6 characters">
+
+      <button class="btn btn-primary" type="submit">
+        Create Account
+      </button>
+    </form>
+
+    <form id="vrLoginForm">
+      <h3>Instructor Login</h3>
+
+      <label for="vrLoginEmail">Email</label>
+      <input id="vrLoginEmail" type="email" required
+        autocomplete="email" placeholder="Your email">
+
+      <label for="vrLoginPassword">Password</label>
+      <input id="vrLoginPassword" type="password" required
+        autocomplete="current-password" placeholder="Your password">
+
+      <button class="btn btn-primary" type="submit">
+        Log In
+      </button>
+    </form>
+
+  </div>
+
+  <p id="vrAuthMessage" role="status" aria-live="polite"></p>
+</section>
+    
   </main>
 
   <footer>
@@ -943,6 +992,127 @@
         document.getElementById("role").value = card.dataset.role;
       });
     });
+    
+const vrClient = window.supabaseClient;
+
+const vrMessage = document.getElementById("vrAuthMessage");
+
+function showVrMessage(message) {
+  vrMessage.textContent = message;
+}
+
+if (vrClient) {
+  // Instructor sign up
+  document.getElementById("vrSignupForm")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById("vrSignupName").value.trim();
+      const email = document.getElementById("vrSignupEmail").value.trim();
+      const password = document.getElementById("vrSignupPassword").value;
+
+      showVrMessage("Creating your account...");
+
+      try {
+        const { data, error } = await vrClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.session && data.user) {
+          const { error: profileError } = await vrClient
+            .from("instructor_profiles")
+            .insert({
+              id: data.user.id,
+              full_name: name,
+              status: "pending"
+            });
+
+          if (profileError) {
+            console.error(profileError);
+            showVrMessage(
+              "Account created, but profile setup needs attention. Please log in again."
+            );
+            return;
+          }
+
+          showVrMessage(
+            "Account created! Your instructor profile is pending admin approval."
+          );
+        } else {
+          showVrMessage(
+            "Account created! Check your email to confirm your account, then log in."
+          );
+        }
+
+        this.reset();
+      } catch (error) {
+        showVrMessage(error.message || "Signup failed. Please try again.");
+      }
+    });
+
+  // Instructor login
+  document.getElementById("vrLoginForm")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const email = document.getElementById("vrLoginEmail").value.trim();
+      const password = document.getElementById("vrLoginPassword").value;
+
+      showVrMessage("Logging in...");
+
+      try {
+        const { data, error } = await vrClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        const user = data.user;
+
+        const { data: profile, error: readError } = await vrClient
+          .from("instructor_profiles")
+          .select("id")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (readError) throw readError;
+
+        if (!profile) {
+          const name =
+            user.user_metadata?.full_name ||
+            user.email ||
+            "Instructor";
+
+          const { error: insertError } = await vrClient
+            .from("instructor_profiles")
+            .insert({
+              id: user.id,
+              full_name: name,
+              status: "pending"
+            });
+
+          if (insertError) throw insertError;
+        }
+
+        showVrMessage(
+          "Login successful! Your profile is pending admin approval."
+        );
+
+        this.reset();
+      } catch (error) {
+        showVrMessage(error.message || "Login failed. Please try again.");
+      }
+    });
+} else {
+  showVrMessage("Connection error. Please refresh the page.");
+}
   </script>
 </body>
 </html>
