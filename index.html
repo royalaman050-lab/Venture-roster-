@@ -483,6 +483,55 @@
       .footer-row { flex-direction: column; align-items: flex-start; }
       .footer-links { flex-wrap: wrap; }
     }
+    .location-search {
+  position: relative;
+  min-width: 0;
+}
+
+.location-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 7px;
+  border: none;
+  outline: none;
+  color: #44536a;
+  background: white;
+  font-size: 12px;
+}
+
+.location-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 220px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px #00000020;
+}
+
+.location-suggestions:empty {
+  display: none;
+}
+
+.location-suggestion {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: white;
+  color: #0b1728;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.location-suggestion:hover {
+  background: #f5f7fb;
+}
   </style>
 </head>
 
@@ -534,11 +583,19 @@
               <option value="First Aid Instructor">First Aid Instructor</option>
             </select>
 
-            <select id="location" aria-label="Location">
-              <option value="">All locations</option>
-              <option value="">Delhi NCR</option> 
-              <option>Other</option>
-            </select>
+            <div class="location-search">
+        <input
+         type="text"
+         id="location"
+         aria-label="Location"
+          placeholder="Search your location..."
+          autocomplete="off"
+          />
+          <div
+           id="locationSuggestions"
+           class="location-suggestions"
+            ></div>
+            </div>
 
             <button class="btn btn-primary" type="submit">
               ⌕ Search
@@ -769,6 +826,88 @@
   <script>
     document.getElementById("year").textContent =
       new Date().getFullYear();
+        // Location autocomplete
+    const locationInput = document.getElementById("location");
+    const suggestionsList = document.getElementById("locationSuggestions");
+
+    let locationTimer;
+    let locationController;
+
+    locationInput.addEventListener("input", function () {
+      clearTimeout(locationTimer);
+
+      if (locationController) {
+        locationController.abort();
+      }
+
+      suggestionsList.replaceChildren();
+
+      const query = locationInput.value.trim();
+
+      if (query.length < 3) return;
+
+      locationTimer = setTimeout(async function () {
+        locationController = new AbortController();
+
+        try {
+          const url = new URL("https://photon.komoot.io/api/");
+          url.searchParams.set("q", query);
+          url.searchParams.set("limit", "5");
+          url.searchParams.set("lang", "en");
+
+          const response = await fetch(url, {
+            signal: locationController.signal
+          });
+
+          if (!response.ok) return;
+
+          const data = await response.json();
+
+          if (locationInput.value.trim() !== query) return;
+
+          data.features.forEach(function (feature) {
+            const p = feature.properties;
+
+            const parts = [
+              p.name,
+              p.street,
+              p.district,
+              p.city,
+              p.state,
+              p.country
+            ].filter(function (value, index, array) {
+              return value && array.indexOf(value) === index;
+            });
+
+            const label = [...new Set(parts)].join(", ");
+
+            if (!label) return;
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "location-suggestion";
+            button.textContent = label;
+
+            button.addEventListener("click", function () {
+              locationInput.value = label;
+              suggestionsList.replaceChildren();
+            });
+
+            suggestionsList.appendChild(button);
+          });
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            console.error("Location lookup failed:", error);
+          }
+        }
+      }, 500);
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".location-search")) {
+        suggestionsList.replaceChildren();
+      }
+    });
 
     document.getElementById("searchForm").addEventListener("submit", function(event) {
       event.preventDefault();
