@@ -1424,6 +1424,29 @@ const vrAdminPanel = document.getElementById("vrAdminPanel");
 const vrPendingProfiles = document.getElementById("vrPendingProfiles");
 const vrRefreshPending = document.getElementById("vrRefreshPending");
 
+const vrAdminLogout = document.getElementById("vrAdminLogout");
+
+vrAdminLogout.addEventListener("click", async function () {
+  this.disabled = true;
+  this.textContent = "Logging out...";
+
+  try {
+    const { error } = await vrClient.auth.signOut();
+
+    if (error) throw error;
+
+    vrAdminPanel.style.display = "none";
+    showVrMessage("Logged out successfully.");
+
+    document.getElementById("vrLoginForm").reset();
+  } catch (error) {
+    showVrMessage("Logout failed: " + error.message);
+  } finally {
+    this.disabled = false;
+    this.textContent = "Logout";
+  }
+});
+    
 async function vrLoadAdminPanel() {
   const { data: authData, error: authError } =
     await vrClient.auth.getUser();
