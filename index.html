@@ -532,6 +532,121 @@
 .location-suggestion:hover {
   background: #f5f7fb;
 }
+    
+/* VentureRoster professional account forms */
+#instructor-account {
+  max-width: 1000px;
+  margin: 55px auto;
+  padding: 40px 24px !important;
+  box-sizing: border-box;
+}
+
+#instructor-account > h2 {
+  font-size: clamp(28px, 5vw, 38px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  color: #0b1728;
+}
+
+#instructor-account > p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+#instructor-account > div {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px !important;
+  margin-top: 28px;
+}
+
+#instructor-account form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+  padding: 26px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+#instructor-account form h3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  color: #0b1728;
+}
+
+#instructor-account form label {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+#instructor-account form input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 15px;
+  outline: none;
+}
+
+#instructor-account form input:focus {
+  border-color: #3478f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(52, 120, 246, 0.12);
+}
+
+#instructor-account form button {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#instructor-account form button:hover {
+  background: #1d4ed8;
+}
+
+#vrAuthMessage {
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 650px) {
+  #instructor-account {
+    padding: 30px 18px !important;
+    margin: 25px auto;
+  }
+
+  #instructor-account > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px !important;
+  }
+
+  #instructor-account form {
+    padding: 22px;
+  }
+}
+    
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
